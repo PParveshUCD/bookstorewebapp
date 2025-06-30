@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Your Cart</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+
+</head>
+<body>
+<h2>Your Cart</h2>
+<div th:if="${cart != null and cart.items != null}">
+  <table border="1">
+    <tr>
+      <th>Title</th><th>Quantity</th><th>Price</th>
+    </tr>
+    <tr th:each="item : ${cart.items}">
+      <td th:text="${item.book.title}">Title</td>
+      <td th:text="${item.quantity}">Quantity</td>
+      <td th:text="${item.book.price * item.quantity}">Total</td>
+      <td>
+        <form th:action="@{/cart/decrease}" method="post" style="display:inline;">
+          <input type="hidden" name="bookId" th:value="${item.book.id}" />
+          <button type="submit">−</button>
+        </form>
+
+        <span th:text="${item.quantity}">1</span>
+
+        <form th:action="@{/cart/increase}" method="post" style="display:inline;">
+          <input type="hidden" name="bookId" th:value="${item.book.id}" />
+          <button type="submit"
+                  th:disabled="${item.quantity >= item.book.copies}">+</button>
+        </form>
+
+        <form th:action="@{/cart/remove}" method="post" style="display:inline;">
+          <input type="hidden" name="bookId" th:value="${item.book.id}" />
+          <button type="submit">Remove</button>
+        </form>
+      </td>
+
+    </tr>
+
+  </table>
+</div>
+
+
+
+<!--<form th:action="@{/checkout}" method="post">
+  <button type="submit">Checkout</button>
+</form> -->
+
+<form th:action="@{/checkout}" method="get">
+  <button type="submit">Checkout</button>
+</form>
+
+<div th:if="${error}">
+  <p style="color: red;" th:text="${error}"></p>
+</div>
+
+<div th:if="${cart == null or #lists.isEmpty(cart.items)}">
+  <p>Your cart is empty.</p>
+</div>
+
+<a href="/books">Continue Shopping</a>
+
+<a href="/logout">Logout</a>
+</body>
+</html>

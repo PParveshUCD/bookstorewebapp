@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Checkout</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<h2>Checkout</h2>
+
+<form th:action="@{/checkout}" method="post">
+  <p>Total Amount: <span th:text="${total}"></span></p>
+
+  <label>Card Number:</label>
+  <input type="text" name="cardNumber" required /><br>
+
+  <label>Expiry:</label>
+  <input type="text" name="expiry" required /><br>
+
+  <label>CVV:</label>
+  <input type="text" name="cvv" required /><br>
+
+  <button type="submit">Place Order</button>
+</form>
+
+<a href="/cart">Back to Cart</a>
+</body>
+</html>

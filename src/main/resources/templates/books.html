@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Books</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<h1>Available Books</h1>
+
+<form th:action="@{/books}" method="get">
+  <input type="text" name="keyword" placeholder="Search by title" th:value="${keyword}" />
+  <button type="submit">Search</button>
+</form>
+
+<table border="1">
+  <thead>
+  <tr>
+    <th>Title</th>
+    <th>Author</th>
+    <th>Year</th>
+    <th>Price</th>
+    <th>Copies</th>
+    <th>Action</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="book : ${books}">
+    <td th:text="${book.title}">Title</td>
+    <td th:text="${book.author}">Author</td>
+    <td th:text="${book.year}">Year</td>
+    <td th:text="${book.price}">Price</td>
+    <td th:text="${book.copies}">Copies</td>
+    <td>
+      <form th:action="@{/cart/add}" method="post" th:if="${book.copies > 0}">
+        <input type="hidden" name="bookId" th:value="${book.id}" />
+        <button type="submit">Buy</button>
+      </form>
+      <button type="button" disabled th:if="${book.copies == 0}">Out of Stock</button>
+      <form th:action="@{/admin/delete-book}" method="post"
+            th:if="${book.copies == 0} and ${#authorization.expression('hasRole(''ADMIN'')')}">
+        <input type="hidden" name="bookId" th:value="${book.id}" />
+        <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+</table>
+
+<div>
+  <span th:text="'Page ' + ${currentPage + 1} + ' of ' + ${totalPages}"></span>
+</div>
+
+<div>
+  <ul>
+    <li th:if="${currentPage > 0}">
+      <a th:href="@{/books(page=${currentPage - 1}, keyword=${keyword})}">Previous</a>
+    </li>
+    <li th:if="${currentPage < totalPages - 1}">
+      <a th:href="@{/books(page=${currentPage + 1}, keyword=${keyword})}">Next</a>
+    </li>
+  </ul>
+</div>
+
+<nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #f0f0f0;">
+  <div>
+    <a th:href="@{/books}">Home</a> |
+    <a th:href="@{/cart}">Cart (<span th:text="${cartItemCount}">0</span>)</a>
+    <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}" th:href="@{/admin/add-book}">Add Book</a>
+  </div>
+
+  <div>
+  <span th:if="${#authentication.name != 'anonymousUser'}"
+        th:text="'Hello, ' + ${#authentication.name}">Hello, User</span>
+    <a th:href="@{/logout}" style="margin-left: 15px;">Logout</a>
+  </div>
+
+</nav>
+
+
+</body>
+</html>

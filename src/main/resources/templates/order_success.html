@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Success</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<h2>Order Placed Successfully!</h2>
+<p>Thank you for your purchase.</p>
+
+<p>Total Amount: <span th:text="${order.total}"></span></p>
+
+<a th:href="@{/books}">Continue Shopping</a>
+</body>
+</html>

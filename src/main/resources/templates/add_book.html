@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Book</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<h2>Add a New Book</h2>
+<div th:if="${error}" style="color: red;">
+    <p th:text="${error}"></p>
+</div>
+
+<form th:action="@{/admin/add-book}" method="post">
+    <label>Title: <input type="text" name="title" required></label><br>
+    <label>Author: <input type="text" name="author" required></label><br>
+    <label>Year: <input type="number" name="year" required></label><br>
+    <label>Price: <input type="number" name="price" step="0.01" required></label><br>
+    <label>Copies: <input type="number" name="copies" required></label><br>
+    <button type="submit">Add Book</button>
+</form>
+
+<a href="/books">Back to Books</a>
+</body>
+</html>
