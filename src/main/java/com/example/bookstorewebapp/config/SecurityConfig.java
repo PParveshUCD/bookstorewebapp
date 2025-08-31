@@ -1,58 +1,75 @@
 package com.example.bookstorewebapp.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import com.example.bookstorewebapp.service.CustomUserDetailsService;
+import org.springframework.context.annotation.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.filter.ForwardedHeaderFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.example.bookstorewebapp.security.MfaFilter;
 
 @Configuration
 @EnableWebSecurity
+
+
+
 public class SecurityConfig {
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new CustomUserDetailsService();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
 
-    // If you terminate TLS at a proxy (Nginx/ALB), this honors X-Forwarded-Proto
-    @Bean
-    public ForwardedHeaderFilter forwardedHeaderFilter() {
-        return new ForwardedHeaderFilter();
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .userDetailsService(userDetailsService())
+                .passwordEncoder(passwordEncoder())
+                .and()
+                .build();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // (keep your HTTPS gating)
+// inside securityFilterChain(...)
+       // http.addFilterAfter(mfaFilter, UsernamePasswordAuthenticationFilter.class);
+
         http
-                // Enforce HTTPS (will 302 to https)
-                .requiresChannel(ch -> ch.anyRequest().requiresSecure())
+                // make sure this line is present to stop “save request /error”
+                .requestCache(rc -> rc.disable())
 
-                // Security headers (no xssProtection())
-                .headers(h -> h
-                        .httpStrictTransportSecurity(hsts -> hsts
-                                .includeSubDomains(true)
-                                .preload(true)
-                                .maxAgeInSeconds(31536000))
-                        .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'self'"))
-                        .frameOptions(frame -> frame.sameOrigin()) // if you use H2 console; otherwise .deny()
-                )
-
-                // Your existing rules
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/books", "/css/**").permitAll()
+                        // explicitly permit error endpoints
+                        .requestMatchers("/error", "/error/**").permitAll()
+                        .requestMatchers("/", "/register", "/login", "/books", "/css/**", "/mfa/**", "/h2-console/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/books", true)
                         .permitAll())
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll());
+                .logout(lo -> lo.logoutSuccessUrl("/login?logout").permitAll());
 
         return http.build();
     }

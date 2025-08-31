@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
+import com.example.bookstorewebapp.security.LoginThrottleService;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,20 +17,18 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired private LoginThrottleService throttle;
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
         if (user == null) throw new UsernameNotFoundException("User not found");
-
-        //System.out.println("Username: " + user.getUsername());
-        //System.out.println("Encoded password from DB: " + user.getPassword());
-        log.debug("User {} loaded for authentication", username);
+        throttle.ensureNotLocked(user); // ⬅️ block locked accounts
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole())) // e.g., ROLE_ADMIN
+                user.getUsername(), user.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
+
 
 
     }

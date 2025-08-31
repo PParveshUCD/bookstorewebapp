@@ -17,6 +17,12 @@ public class AuthController {
     @Autowired private UserRepository userRepository;
     @Autowired private BCryptPasswordEncoder passwordEncoder;
 
+//    / ✅ LOGIN VIEW (required because formLogin().loginPage("/login") expects a view named "login")
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login"; // resolves to src/main/resources/templates/login.html
+    }
+
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         model.addAttribute("user", new User());

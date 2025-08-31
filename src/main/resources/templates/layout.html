@@ -24,7 +24,11 @@
         <a class="navbar-brand" th:href="@{/}">Home</a>
         <a class="nav-link" th:href="@{/books}">Books</a>
         <a class="nav-link" th:href="@{/cart}">Cart</a>
-        <a class="nav-link" th:href="@{/logout}">Logout</a>
+        <!-- POST logout (recommended) -->
+        <form th:action="@{/logout}" method="post" class="d-inline">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn btn-link nav-link p-0">Logout</button>
+        </form>
     </div>
 </nav>
 

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form th:action="@{/mfa/enable}" method="post">
+  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+  <p>Secret (scan or enter in your authenticator): <code th:text="${secret}"></code></p>
+  <!-- If you implement Base32 & QR, show a QR image here -->
+  <input name="code" placeholder="Enter 6-digit code" required>
+  <button type="submit">Enable MFA</button>
+</form>
+
+</body>
+</html>
