@@ -2,6 +2,7 @@ package com.example.bookstorewebapp.service;
 
 import com.example.bookstorewebapp.model.User;
 import com.example.bookstorewebapp.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-
+@Slf4j
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -21,8 +22,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username);
         if (user == null) throw new UsernameNotFoundException("User not found");
 
-        System.out.println("Username: " + user.getUsername());
-        System.out.println("Encoded password from DB: " + user.getPassword());
+        //System.out.println("Username: " + user.getUsername());
+        //System.out.println("Encoded password from DB: " + user.getPassword());
+        log.debug("User {} loaded for authentication", username);
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),

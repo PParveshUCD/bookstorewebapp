@@ -3,13 +3,14 @@ package com.example.bookstorewebapp.service;
 import com.example.bookstorewebapp.model.*;
 import com.example.bookstorewebapp.repository.*;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
+@Slf4j
 @Service
 public class CartService {
 
@@ -74,8 +75,9 @@ public class CartService {
     public Order checkout(String username) {
         User user = userRepository.findByUsername(username);
         Cart cart = cartRepo.findByUser(user);
-        System.out.println("Username: " + username);
-        System.out.println("Cart found: " + (cart != null));
+       // System.out.println("Username: " + username);
+        //System.out.println("Cart found: " + (cart != null));
+        log.debug("Cart fetched for user {}", username);
         if (cart != null) {
             System.out.println("Items in cart: " + cart.getItems().size());
         }

@@ -3,11 +3,12 @@ package com.example.bookstorewebapp.config;
 
 import com.example.bookstorewebapp.model.User;
 import com.example.bookstorewebapp.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
+@Slf4j
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -22,8 +23,9 @@ public class DataInitializer implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setRole("ADMIN");
             userRepo.save(admin);
+            log.info("Default admin ensured");
 
-            System.out.println("✅ Default admin created: admin / admin123");
+//            System.out.println("✅ Default admin created: admin / admin123");
         } else {
             System.out.println("ℹ️ Admin already exists.");
         }
