@@ -1,5 +1,8 @@
 package com.example.bookstorewebapp.config;
 
+
+import com.example.bookstorewebapp.security.MfaFilter;
+import com.example.bookstorewebapp.logging.MdcFilter;
 import com.example.bookstorewebapp.service.CustomUserDetailsService;
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,7 +14,7 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import com.example.bookstorewebapp.security.MfaFilter;
+
 
 @Configuration
 @EnableWebSecurity
@@ -23,6 +26,17 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return new CustomUserDetailsService();
+    }
+
+    private final MdcFilter mdcFilter;
+    private final MfaFilter mfaFilter;
+
+    // <-- if you don’t have MFA yet, delete this field & its uses
+
+    // If you DON'T have MfaFilter, use a constructor with only MdcFilter
+    public SecurityConfig(MdcFilter mdcFilter, MfaFilter mfaFilter) {
+        this.mdcFilter = mdcFilter;
+        this.mfaFilter = mfaFilter;
     }
 
     @Bean
@@ -53,6 +67,9 @@ public class SecurityConfig {
         // (keep your HTTPS gating)
 // inside securityFilterChain(...)
        // http.addFilterAfter(mfaFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // constructor-inject MdcFilter mdcFilter (similar to MfaFilter)
+        http.addFilterBefore(mdcFilter, UsernamePasswordAuthenticationFilter.class);
 
         http
                 // make sure this line is present to stop “save request /error”
