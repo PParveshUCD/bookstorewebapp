@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+        <!-- Register custom converter -->
+        <conversionRule conversionWord="maskedMsg"
+                        converterClass="com.example.bookstorewebapp.logging.MaskingConverter"/>
+
+        <!-- Standard rolling app log -->
+        <appender name="APP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/app.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>logs/app.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+                <maxHistory>14</maxHistory>
+                <totalSizeCap>2GB</totalSizeCap>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <!-- Include request context; use masked message -->
+                <pattern>%d{ISO8601} %-5level [%X{reqId} %X{user} %X{ip}] %logger{36} - %maskedMsg%n</pattern>
+            </encoder>
+        </appender>
+
+        <!-- Separate security audit log -->
+        <appender name="SECURITY_AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/security-audit.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>logs/security-audit.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>2GB</totalSizeCap>
+            </rollingPolicy>
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>%d{ISO8601} %-5level [%X{reqId} %X{user} %X{ip}] %logger{36} - %maskedMsg%n</pattern>
+            </encoder>
+        </appender>
+
+        <!-- App logger -->
+        <logger name="com.example.bookstorewebapp" level="INFO" additivity="false">
+            <appender-ref ref="APP"/>
+        </logger>
+
+        <!-- Audit logger writes only to audit file -->
+        <logger name="SECURITY_AUDIT" level="INFO" additivity="false">
+            <appender-ref ref="SECURITY_AUDIT"/>
+        </logger>
+
+        <!-- Tame chatty libs to avoid leaking params -->
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <!-- Hibernate 6 binder logging (parameter values) -->
+        <logger name="org.hibernate.orm.jdbc.bind" level="OFF"/>
+        <logger name="org.hibernate.type.descriptor.sql" level="OFF"/>
+
+        <root level="INFO">
+            <appender-ref ref="APP"/>
+        </root>
+    </configuration>
