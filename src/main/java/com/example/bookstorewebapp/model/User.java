@@ -1,5 +1,6 @@
 package com.example.bookstorewebapp.model;
 
+import com.example.bookstorewebapp.validation.StrongPassword;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -21,8 +22,12 @@ public class User {
     @NotBlank @Size(max = 50)
     private String username;        // kept in clear
 
-    @NotBlank @Size(min = 8, max = 100)
-    private String password;        // BCrypt hash
+
+    // replace your current @Size on password
+    @StrongPassword
+    private String password;
+    //@NotBlank @Size(min = 8, max = 100)
+    //private String password;        // BCrypt hash
 
     @NotBlank @Pattern(regexp = "ADMIN|CUSTOMER")
     private String role;            // kept in clear
